@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Webhook Deleter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      font-family: system-ui;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.5);
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+    }
+    input {
+      background: #0f172a;
+      color: white;
+      border: 1px solid #334155;
+    }
+    button {
+      background: #ef4444;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #dc2626;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Discord Webhook Deleter</h2>
+  <input id="webhook" placeholder="Paste webhook URL">
+  <button onclick="deleteWebhook()">Delete</button>
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+async function deleteWebhook() {
+  const webhook = document.getElementById("webhook").value.trim();
+  const status = document.getElementById("status");
+
+  if (!webhook.startsWith("https://discord.com/api/webhooks/")) {
+    status.textContent = "Invalid webhook URL.";
+    return;
+  }
+
+  status.textContent = "Deleting...";
+
+  try {
+    const res = await fetch("/api/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ webhook })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      status.textContent = "Webhook deleted successfully.";
+    } else {
+      status.textContent = data.error || "Failed.";
+    }
+  } catch (err) {
+    status.textContent = "Server error.";
+  }
+}
+</script>
+
+</body>
+</html>
